@@ -45,6 +45,7 @@ Vagrant.configure("2") do |config|
   # Provisioning with a ansible.
   config.vm.provision "ansible" do |ansible|
       ansible.playbook = "../../../openstack_provisioning/openstack.yml"
+      ansible.ask_vault_pass = true
       ansible.extra_vars = {
           "devstack_datafile" => "/tmp/devstack_data",
           "vm_type"           => "devstack",
