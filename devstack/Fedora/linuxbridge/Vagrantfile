@@ -9,7 +9,7 @@ VM_CPUS = 4
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "fedora/27-cloud-base"
+  config.vm.box = "generic/fedora28"
   config.vm.hostname = "devstack-fedora-linuxbridge"
   config.ssh.forward_agent = true
 
