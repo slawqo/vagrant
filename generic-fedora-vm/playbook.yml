@@ -1,0 +1,20 @@
+---
+- hosts: all
+  user: root
+  tasks:
+      - name: Upgrade all packages
+        dnf:
+            name: '*'
+            state: latest
+        become: yes
+        become_method: sudo
+
+
+- name: provision instance
+  hosts: all
+  user: root
+  roles:
+      - { role: base }
+      - { role: fzf }
+      - { role: development }
+      - { role: neutron }

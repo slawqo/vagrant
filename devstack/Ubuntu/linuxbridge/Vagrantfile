@@ -1,0 +1,56 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VM_MEMORY = 8192
+VM_CPUS = 4
+iface = "eth1"
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu1804"
+  config.vm.hostname = "devstack-ubuntu-linuxbridge"
+  config.ssh.forward_agent = true
+
+  config.vm.define "devstack-ubuntu-linuxbridge" do |devstack|
+    end
+
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # Private (host-only) network
+  config.vm.network "private_network", ip: "10.120.0.10"
+
+  # Libvirt specific configuration
+  config.vm.provider "libvirt" do |libvirt|
+    libvirt.memory = VM_MEMORY
+    libvirt.cpus = VM_CPUS
+    libvirt.nested = true
+    libvirt.machine_virtual_size = 100
+  end
+
+  # VirtualBox specific configuration
+  config.vm.provider "virtualbox" do |vb|
+      vb.name = "devstack-ubuntu-linuxbridge"
+      vb.memory = VM_MEMORY
+      vb.cpus = VM_CPUS
+  end
+
+  # Preprovisioning with shell script
+  # It's necessary because xenial don't have python2 installed by default
+  # and it's required by ansible
+  config.vm.provision "shell", inline: "sudo apt-get update; sudo apt-get -y install python-minimal"
+
+  # Provisioning with a ansible.
+  config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../../../openstack_provisioning/openstack.yml"
+      ansible.extra_vars = {
+          "devstack_datafile" => "/tmp/devstack_data",
+          "vm_type"           => "devstack",
+          "iface"             => iface,
+          "l2_agent"          => "linuxbridge",
+          "topology"          => "allinone",
+      }
+  end
+end

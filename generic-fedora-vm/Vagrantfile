@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VM_MEMORY = 4096
+VM_CPUS = 1
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  config.vm.box = "fedora/27-cloud-base"
+  config.vm.hostname = "generic-fedora-vm"
+  config.ssh.forward_agent = true
+
+  config.vm.define "generic-fedora-vm" do |vm|
+    end
+
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # Private (host-only) network
+  config.vm.network "private_network", ip: "10.110.0.50"
+
+  # Libvirt specific configuration
+  config.vm.provider "libvirt" do |libvirt|
+    libvirt.memory = VM_MEMORY
+    libvirt.cpus = VM_CPUS
+    libvirt.nested = true
+    libvirt.machine_virtual_size = 100
+  end
+
+  # VirtualBox specific configuration
+  config.vm.provider "virtualbox" do |vb|
+      vb.name = "generic-fedora-vm"
+      vb.memory = VM_MEMORY
+      vb.cpus = VM_CPUS
+  end
+
+  # Preprovisioning with shell script
+  # It's necessary because Fedora 27 don't have python2 installed by default
+  # and it's required by ansible
+  config.vm.provision "shell", inline: "sudo yum -y install python2"
+
+  # Provisioning with a ansible.
+  config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "./playbook.yml"
+      ansible.extra_vars = {
+          "iface"             => "eth1",
+      }
+  end
+end

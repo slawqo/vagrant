@@ -1,0 +1,13 @@
+---
+horizon_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+keystone_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+devstack_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+nova_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+cinder_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+glance_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+neutron_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+neutron_lbaas_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+neutronclient_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+heat_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+watcher_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"
+ceilometer_branch: "{{ 'master' if branch == 'master' else 'stable/'+branch }}"

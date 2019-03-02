@@ -1,0 +1,21 @@
+---
+- hosts: all
+  user: root
+  tasks:
+      - name: Upgrade all packages
+        yum:
+            name: '*'
+            state: latest
+            update_cache: yes
+        become: yes
+        become_method: sudo
+
+
+- name: provision instance
+  hosts: all
+  user: root
+  roles:
+      - { role: base }
+      - { role: development }
+      - { role: fzf }
+      - { role: packstack }

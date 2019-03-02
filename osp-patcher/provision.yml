@@ -1,0 +1,35 @@
+---
+- hosts: all
+  tasks:
+      - name: Upgrade all Fedora packages
+        dnf:
+            name: '*'
+            state: latest
+        become: yes
+        become_method: sudo
+        when: ansible_distribution == "Fedora"
+
+      - name: Upgrade all Centos packages
+        yum:
+            name: '*'
+            state: latest
+            update_cache: yes
+        become: yes
+        become_method: sudo
+        when: ansible_distribution == "CentOS" or ansible_distribution == 'Red Hat Enterprise Linux'
+
+
+- name: provision host
+  hosts: all
+  user: root
+  vars:
+      - iface: enp0s25
+  roles:
+      - { role: base }
+      - { role: fzf }
+      - { role: development }
+      - { role: libvirt }
+      - { role: vagrant }
+      - { role: ansible }
+      - { role: rh_dev }
+      - { role: docker }

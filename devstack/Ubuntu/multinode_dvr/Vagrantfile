@@ -1,0 +1,113 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+CONTROLLER_MEMORY = 8192
+CONTROLLER_CPUS = 2
+COMPUTE_MEMORY = 8192
+COMPUTE_CPUS = 4
+CONTROLLER_IP = "10.120.0.20"
+COMPUTE_IP = "10.120.0.21"
+
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  config.vm.define "allinone" do |ain|
+      ain.vm.box = "generic/ubuntu1804"
+      ain.vm.hostname = "devstack-ubuntu-allinone"
+      ain.ssh.forward_agent = true
+
+      ain.vm.define "devstack-ubuntu-allinone" do |devstack|
+        end
+
+      ain.vm.synced_folder ".", "/vagrant", disabled: true
+
+      # Private (host-only) network
+      ain.vm.network "private_network", ip: CONTROLLER_IP
+
+      # Libvirt specific configuration
+      ain.vm.provider "libvirt" do |libvirt|
+        libvirt.memory = CONTROLLER_MEMORY
+        libvirt.cpus = CONTROLLER_CPUS
+        libvirt.nested = true
+        libvirt.machine_virtual_size = 50
+        libvirt.random_hostname = true
+      end
+
+      # VirtualBox specific configuration
+      ain.vm.provider "virtualbox" do |vb|
+          vb.name = "devstack-ubuntu-ain"
+          vb.memory = CONTROLLER_MEMORY
+          vb.cpus = CONTROLLER_CPUS
+      end
+
+      # Preprovisioning with shell script
+      # It's necessary because Fedora 27 don't have python2 installed by default
+      # and it's required by ansible
+      ain.vm.provision "shell", inline: "sudo apt-get update; sudo apt-get -y install python-minimal"
+
+      # Provisioning with a ansible.
+      ain.vm.provision "ansible" do |ansible|
+          ansible.playbook = "../../../openstack_provisioning/openstack.yml"
+          ansible.extra_vars = {
+              "devstack_datafile" => "/tmp/devstack_data",
+              "iface"             => "eth1",
+              "vm_type"           => "devstack",
+              "l2_agent"          => "openvswitch",
+              "l3_mode"           => "dvr_snat",
+              "topology"          => "multinode",
+          }
+      end
+  end
+
+  config.vm.define "compute" do |compute|
+      compute.vm.box = "generic/ubuntu1804"
+      compute.vm.hostname = "devstack-ubuntu-compute"
+      compute.ssh.forward_agent = true
+
+      compute.vm.define "devstack-ubuntu-compute" do |devstack|
+        end
+
+      compute.vm.synced_folder ".", "/vagrant", disabled: true
+
+      # Private (host-only) network
+      compute.vm.network "private_network", ip: COMPUTE_IP
+
+      # Libvirt specific configuration
+      compute.vm.provider "libvirt" do |libvirt|
+        libvirt.memory = COMPUTE_MEMORY
+        libvirt.cpus = COMPUTE_CPUS
+        libvirt.nested = true
+        libvirt.machine_virtual_size = 100
+        libvirt.random_hostname = true
+      end
+
+      # VirtualBox specific configuration
+      compute.vm.provider "virtualbox" do |vb|
+          vb.name = "devstack-ubuntu-compute"
+          vb.memory = COMPUTE_MEMORY
+          vb.cpus = COMPUTE_CPUS
+      end
+
+      # Preprovisioning with shell script
+      # It's necessary because Fedora 27 don't have python2 installed by default
+      # and it's required by ansible
+      compute.vm.provision "shell", inline: "sudo apt-get update; sudo apt-get -y install python-minimal"
+
+      # Provisioning with a ansible.
+      compute.vm.provision "ansible" do |ansible|
+          ansible.playbook = "../../../openstack_provisioning/openstack.yml"
+          ansible.extra_vars = {
+              "devstack_datafile" => "/tmp/devstack_data",
+              "iface"             => "eth1",
+              "vm_type"           => "devstack",
+              "l2_agent"          => "openvswitch",
+              "topology"          => "multinode",
+              "l3_mode"           => "dvr_snat",
+              "service_host"      => CONTROLLER_IP
+          }
+      end
+  end
+end

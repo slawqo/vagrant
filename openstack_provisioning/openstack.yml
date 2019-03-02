@@ -1,0 +1,55 @@
+---
+- hosts: all
+  user: root
+  tasks:
+      - name: update Ubuntu packages
+        apt:
+            update_cache: yes
+            cache_valid_time: 3600
+        become: yes
+        become_method: sudo
+        when: ansible_distribution == 'Ubuntu'
+
+      - name: upgrade all Ubuntu packages
+        apt:
+            upgrade: dist
+        become: yes
+        become_method: sudo
+        when: ansible_distribution == 'Ubuntu'
+
+      - name: Upgrade all Fedora packages
+        dnf:
+            name: '*'
+            state: latest
+        become: yes
+        become_method: sudo
+        when: ansible_distribution == "Fedora"
+
+
+      - name: Upgrade all Centos packages
+        yum:
+            name: '*'
+            state: latest
+            update_cache: yes
+        become: yes
+        become_method: sudo
+        when: ansible_distribution == "CentOS" or ansible_distribution == 'Red Hat Enterprise Linux'
+
+
+- name: provision instance
+  hosts: all
+  user: root
+  vars:
+      branch: master
+      ca_ppa_staging: "{{ (branch == 'master') | ternary('queens', branch) }}"
+  vars_files:
+      - "vars/upstream.yml"
+  roles:
+      - { role: cloud_archive_ppa, when: ansible_distribution == "Ubuntu" }
+      - { role: base }
+      - { role: openvswitch }
+      - { role: fzf }
+      - { role: development }
+      - { role: devstack }
+      - { role: neutron, when: vm_type == "fullstack" }
+      - { role: infra_bridge, when: vm_type != "fullstack" and topology == "multinode" }
