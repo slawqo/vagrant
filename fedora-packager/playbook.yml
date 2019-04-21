@@ -15,6 +15,7 @@
   user: root
   roles:
       - { role: base }
+      - { role: base_configs }
       - { role: fzf }
       - { role: development }
       - { role: fedora_dev }

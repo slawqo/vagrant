@@ -47,6 +47,7 @@
   roles:
       - { role: cloud_archive_ppa, when: ansible_distribution == "Ubuntu" }
       - { role: base }
+      - { role: base_configs }
       - { role: openvswitch }
       - { role: fzf }
       - { role: development }

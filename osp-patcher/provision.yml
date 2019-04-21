@@ -26,6 +26,7 @@
       - iface: enp0s25
   roles:
       - { role: base }
+      - { role: base_configs }
       - { role: fzf }
       - { role: development }
       - { role: libvirt }
