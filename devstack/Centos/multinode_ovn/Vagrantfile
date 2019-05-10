@@ -1,0 +1,105 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+CONTROLLER_MEMORY = 8192
+CONTROLLER_CPUS = 2
+COMPUTE_MEMORY = 8192
+COMPUTE_CPUS = 4
+
+CONTROLLER_IP = "10.120.0.40"
+COMPUTE_IP = "10.120.0.41"
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  config.vm.define "controller" do |controller|
+      controller.vm.box = "centos/7"
+      controller.vm.hostname = "devstack-ovn-centos-controller"
+      controller.ssh.forward_agent = true
+
+      controller.vm.define "devstack-ovn-centos-controller" do |devstack|
+        end
+
+      controller.vm.synced_folder ".", "/vagrant", disabled: true
+
+      # Private (host-only) network
+      controller.vm.network "private_network", ip: CONTROLLER_IP
+
+      # Libvirt specific configuration
+      controller.vm.provider "libvirt" do |libvirt|
+        libvirt.memory = CONTROLLER_MEMORY
+        libvirt.cpus = CONTROLLER_CPUS
+        libvirt.nested = true
+        libvirt.machine_virtual_size = 50
+        libvirt.random_hostname = true
+        libvirt.storage_pool_name = "images"
+      end
+
+      # VirtualBox specific configuration
+      controller.vm.provider "virtualbox" do |vb|
+          vb.name = "devstack-centos-ain"
+          vb.memory = CONTROLLER_MEMORY
+          vb.cpus = CONTROLLER_CPUS
+      end
+
+      # Provisioning with a ansible.
+      controller.vm.provision "ansible" do |ansible|
+          ansible.playbook = "../../../openstack_provisioning/openstack.yml"
+          ansible.ask_vault_pass = true
+          ansible.extra_vars = {
+              "devstack_datafile" => "/tmp/devstack_data",
+              "iface"             => "eth1",
+              "vm_type"           => "devstack",
+              "l2_agent"          => "ovn",
+              "topology"          => "multinode",
+          }
+      end
+  end
+
+  config.vm.define "compute" do |compute|
+      compute.vm.box = "centos/7"
+      compute.vm.hostname = "devstack-ovn-centos-compute"
+      compute.ssh.forward_agent = true
+
+      compute.vm.define "devstack-ovn-centos-compute" do |devstack|
+        end
+
+      compute.vm.synced_folder ".", "/vagrant", disabled: true
+
+      # Private (host-only) network
+      compute.vm.network "private_network", ip: COMPUTE_IP
+
+      # Libvirt specific configuration
+      compute.vm.provider "libvirt" do |libvirt|
+        libvirt.memory = COMPUTE_MEMORY
+        libvirt.cpus = COMPUTE_CPUS
+        libvirt.nested = true
+        libvirt.machine_virtual_size = 50
+        libvirt.random_hostname = true
+        libvirt.storage_pool_name = "images"
+      end
+
+      # VirtualBox specific configuration
+      compute.vm.provider "virtualbox" do |vb|
+          vb.name = "devstack-ovn-centos-compute"
+          vb.memory = COMPUTE_MEMORY
+          vb.cpus = COMPUTE_CPUS
+      end
+
+      # Provisioning with a ansible.
+      compute.vm.provision "ansible" do |ansible|
+          ansible.playbook = "../../../openstack_provisioning/openstack.yml"
+          ansible.ask_vault_pass = true
+          ansible.extra_vars = {
+              "devstack_datafile" => "/tmp/devstack_data",
+              "iface"             => "eth1",
+              "vm_type"           => "devstack",
+              "l2_agent"          => "ovn",
+              "topology"          => "multinode",
+              "service_host"      => CONTROLLER_IP
+          }
+      end
+  end
+end
