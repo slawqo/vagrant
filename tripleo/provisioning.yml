@@ -22,3 +22,4 @@
       - { role: docker }
       - { role: fzf }
       - { role: development }
+      - { role: tripleo }

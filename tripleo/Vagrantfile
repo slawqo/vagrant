@@ -10,7 +10,7 @@ VM_CPUS = 2
 # you're doing.
 Vagrant.configure("2") do |config|
   config.vm.box = "centos/7"
-  config.vm.hostname = "tripleo-centos"
+  config.vm.hostname = "tripleo-centos.dev"
   config.ssh.forward_agent = true
 
   config.vm.define "tripleo-centos" do |devstack|
