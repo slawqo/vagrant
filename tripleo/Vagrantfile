@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-VM_MEMORY = 6144
+VM_MEMORY = 8196
 VM_CPUS = 2
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
