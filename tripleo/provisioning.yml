@@ -3,10 +3,9 @@
   user: root
   tasks:
       - name: Upgrade all Centos packages
-        yum:
+        dnf:
             name: '*'
             state: latest
-            update_cache: yes
         become: yes
         become_method: sudo
         when: ansible_distribution == "CentOS" or ansible_distribution == 'Red Hat Enterprise Linux'
@@ -18,8 +17,6 @@
   roles:
       - { role: base }
       - { role: base_configs }
-      - { role: openvswitch }
-      - { role: docker }
       - { role: fzf }
       - { role: development }
       - { role: tripleo }
