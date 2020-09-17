@@ -24,6 +24,7 @@ Vagrant.configure("2") do |config|
     libvirt.cpus = VM_CPUS
     libvirt.nested = true
     libvirt.machine_virtual_size = 100
+    libvirt.qemu_use_session = false
   end
 
   # Private (host-only) network
