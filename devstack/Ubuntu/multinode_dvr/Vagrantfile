@@ -17,7 +17,7 @@ COMPUTE_IP = "10.120.0"
 # you're doing.
 Vagrant.configure("2") do |config|
   config.vm.define "dvr-controller" do |ain|
-      ain.vm.box = "generic/ubuntu1804"
+      ain.vm.box = "generic/ubuntu2004"
       ain.vm.hostname = "devstack-ubuntu-dvr-controller"
       ain.ssh.forward_agent = true
 
@@ -49,7 +49,7 @@ Vagrant.configure("2") do |config|
       # Preprovisioning with shell script
       # It's necessary because Fedora 27 don't have python2 installed by default
       # and it's required by ansible
-      ain.vm.provision "shell", inline: "sudo apt-get update; sudo apt-get -y install python-minimal"
+      ain.vm.provision "shell", inline: "sudo apt-get update; sudo apt-get -y install python3-minimal"
 
       # Provisioning with a ansible.
       ain.vm.provision "ansible" do |ansible|
@@ -68,7 +68,7 @@ Vagrant.configure("2") do |config|
 
   (1..COMPUTE_NODES).each do |i|
     config.vm.define "dvr-compute-#{i}" do |compute|
-        compute.vm.box = "generic/ubuntu1804"
+        compute.vm.box = "generic/ubuntu2004"
         compute.vm.hostname = "devstack-ubuntu-dvr-compute-#{i}"
         compute.ssh.forward_agent = true
 
@@ -100,7 +100,7 @@ Vagrant.configure("2") do |config|
         # Preprovisioning with shell script
         # It's necessary because Fedora 27 don't have python2 installed by default
         # and it's required by ansible
-        compute.vm.provision "shell", inline: "sudo apt-get update; sudo apt-get -y install python-minimal"
+        compute.vm.provision "shell", inline: "sudo apt-get update; sudo apt-get -y install python3-minimal"
 
         # Provisioning with a ansible.
         compute.vm.provision "ansible" do |ansible|
