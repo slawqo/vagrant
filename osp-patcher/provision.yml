@@ -29,8 +29,8 @@
       - { role: base_configs }
       - { role: fzf }
       - { role: development }
-      - { role: libvirt }
-      - { role: vagrant }
-      - { role: ansible }
+     #- { role: libvirt }
+     #- { role: vagrant }
+     #- { role: ansible }
       - { role: rh_dev }
-      - { role: docker }
+     #- { role: docker }
