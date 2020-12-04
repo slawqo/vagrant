@@ -6,8 +6,8 @@ CONTROLLER_CPUS = 2
 COMPUTE_MEMORY = 8192
 COMPUTE_CPUS = 4
 
-CONTROLLER_IP = "10.120.0.40"
-COMPUTE_IP = "10.120.0.41"
+CONTROLLER_IP = "10.120.0.140"
+COMPUTE_IP = "10.120.0.141"
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -15,7 +15,7 @@ COMPUTE_IP = "10.120.0.41"
 # you're doing.
 Vagrant.configure("2") do |config|
   config.vm.define "controller" do |controller|
-      controller.vm.box = "centos/7"
+      controller.vm.box = "centos/8"
       controller.vm.hostname = "devstack-ovn-centos-controller"
       controller.ssh.forward_agent = true
 
@@ -34,13 +34,12 @@ Vagrant.configure("2") do |config|
         libvirt.nested = true
         libvirt.machine_virtual_size = 50
         libvirt.random_hostname = true
-        libvirt.storage_pool_name = "images"
         libvirt.qemu_use_session = false
       end
 
       # VirtualBox specific configuration
       controller.vm.provider "virtualbox" do |vb|
-          vb.name = "devstack-centos-ain"
+          vb.name = "devstack-ovn-centos-controller"
           vb.memory = CONTROLLER_MEMORY
           vb.cpus = CONTROLLER_CPUS
       end
@@ -48,7 +47,7 @@ Vagrant.configure("2") do |config|
       # Provisioning with a ansible.
       controller.vm.provision "ansible" do |ansible|
           ansible.playbook = "../../../openstack_provisioning/openstack.yml"
-          ansible.ask_vault_pass = true
+          ansible.vault_password_file = "/tmp/vault_pass"
           ansible.extra_vars = {
               "devstack_datafile" => "/tmp/devstack_data",
               "iface"             => "eth1",
@@ -60,7 +59,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "compute" do |compute|
-      compute.vm.box = "centos/7"
+      compute.vm.box = "centos/8"
       compute.vm.hostname = "devstack-ovn-centos-compute"
       compute.ssh.forward_agent = true
 
@@ -79,7 +78,6 @@ Vagrant.configure("2") do |config|
         libvirt.nested = true
         libvirt.machine_virtual_size = 50
         libvirt.random_hostname = true
-        libvirt.storage_pool_name = "images"
         libvirt.qemu_use_session = false
       end
 
