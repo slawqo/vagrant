@@ -52,5 +52,6 @@
       - { role: fzf }
       - { role: development }
       - { role: devstack }
+      - { role: ebpf-bcc-tracing }
       - { role: neutron, when: vm_type == "fullstack" }
       - { role: infra_bridge, when: vm_type != "fullstack" and topology == "multinode" }
