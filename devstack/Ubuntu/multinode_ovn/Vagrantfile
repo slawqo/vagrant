@@ -91,7 +91,7 @@ Vagrant.configure("2") do |config|
       # Provisioning with a ansible.
       compute.vm.provision "ansible" do |ansible|
           ansible.playbook = "../../../openstack_provisioning/openstack.yml"
-          ansible.ask_vault_pass = true
+          ansible.vault_password_file = "/tmp/vault_pass"
           ansible.extra_vars = {
               "devstack_datafile" => "/tmp/devstack_data",
               "iface"             => "eth1",
