@@ -3,14 +3,14 @@
 
 VM_MEMORY = 8196
 VM_CPUS = 4
-iface = "eth1"
+iface = "ens6"
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "centos/stream8"
+  config.vm.box = "almalinux/centos-stream-9"
   config.vm.hostname = "fullstack-centos"
   config.ssh.forward_agent = true
 

@@ -9,7 +9,7 @@ VM_CPUS = 2
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "centos/stream8"
+  config.vm.box = "almalinux/centos-stream-9"
   config.vm.hostname = "devstack-centos-ovs"
   config.ssh.forward_agent = true
 
@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
       ansible.ask_vault_pass = true
       ansible.extra_vars = {
           "devstack_datafile" => "/tmp/devstack_data",
-          "iface"             => "eth1",
+          "iface"             => "ens6",
           "vm_type"           => "devstack",
           "l2_agent"          => "openvswitch",
           "topology"          => "allinone",

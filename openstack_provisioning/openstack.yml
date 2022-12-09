@@ -41,7 +41,7 @@
   user: root
   vars:
       branch: master
-      ca_ppa_staging: "{{ (branch == 'master') | ternary('victoria', branch) }}"
+      ca_ppa_staging: "{{ (branch == 'master') | ternary('zed', branch) }}"
   vars_files:
       - "vars/upstream.yml"
   roles:

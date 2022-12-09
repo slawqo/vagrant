@@ -1,15 +1,15 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-VM_MEMORY = 4096
-VM_CPUS = 1
+VM_MEMORY = 16384
+VM_CPUS = 4
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "centos/stream8"
+  config.vm.box = "almalinux/centos-stream-9"
   config.vm.hostname = "generic-centos-vm"
   config.ssh.forward_agent = true
 
@@ -37,17 +37,12 @@ Vagrant.configure("2") do |config|
       vb.cpus = VM_CPUS
   end
 
-  # Preprovisioning with shell script
-  # It's necessary because Fedora 27 don't have python2 installed by default
-  # and it's required by ansible
-  config.vm.provision "shell", inline: "sudo yum -y install python2"
-
   # Provisioning with a ansible.
   config.vm.provision "ansible" do |ansible|
       ansible.playbook = "./playbook.yml"
       ansible.ask_vault_pass = true
       ansible.extra_vars = {
-          "iface"             => "eth1",
+          "iface"             => "ens6",
       }
   end
 end

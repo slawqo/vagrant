@@ -10,7 +10,7 @@ iface = "eth1"
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "generic/ubuntu2004"
+  config.vm.box = "generic/ubuntu2204"
   config.vm.hostname = "devstack-ubuntu-ovs"
   config.ssh.forward_agent = true
 
