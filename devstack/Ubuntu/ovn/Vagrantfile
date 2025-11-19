@@ -9,7 +9,7 @@ VM_CPUS = 2
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "generic/ubuntu2204"
+  config.vm.box = "bento/ubuntu-24.04"
   config.vm.hostname = "devstack-ubuntu-ovn"
   config.ssh.forward_agent = true
 
