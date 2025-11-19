@@ -9,7 +9,7 @@ VM_CPUS = 2
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "fedora/28-cloud-base"
+  config.vm.box = "fedora/40-cloud-base"
   config.vm.hostname = "fedora-packager"
   config.ssh.forward_agent = true
 
@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
   # Preprovisioning with shell script
   # It's necessary because Fedora 27 don't have python2 installed by default
   # and it's required by ansible
-  config.vm.provision "shell", inline: "sudo yum -y install python2"
+  #config.vm.provision "shell", inline: "sudo yum -y install python2"
 
   # Provisioning with a ansible.
   config.vm.provision "ansible" do |ansible|
