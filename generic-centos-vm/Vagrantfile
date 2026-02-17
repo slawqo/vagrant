@@ -9,7 +9,7 @@ VM_CPUS = 4
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "http://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-Vagrant-9-20240304.0.x86_64.vagrant-libvirt.box"
+  config.vm.box = "https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-Vagrant-9-20251215.0.x86_64.vagrant-libvirt.box"
   config.vm.hostname = "generic-centos-vm"
   config.ssh.forward_agent = true
 
