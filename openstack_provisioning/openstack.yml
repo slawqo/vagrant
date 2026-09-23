@@ -42,6 +42,9 @@
   vars:
       branch: master
       ca_ppa_staging: "{{ (branch == 'master') | ternary('epoxy', branch) }}"
+      ssh_authorized_keys:
+        - >-
+          ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJr3Sn+hp9SpzYGLtRdIsG8hpOul+DjD+m16fCMoNGg3 slaweq@p1
   vars_files:
       - "vars/upstream.yml"
   roles:
