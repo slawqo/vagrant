@@ -3,3 +3,8 @@
 stack/
 *.swp
 *.retry
+
+*/files
+
+# SSHFS mounts of /opt/stack created by the deploy-devstack skill
+local_src/

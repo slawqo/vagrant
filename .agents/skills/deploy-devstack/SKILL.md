@@ -1,6 +1,6 @@
 ---
 name: deploy-devstack
-description: Deploy or start OpenStack lab boxes in this Vagrant repo. Picks the right Vagrantfile from the request (e.g. "ml2/ovn single node devstack"), brings halted VMs up without re-provisioning, checks whether DevStack is already running, and runs stack.sh when it is not. Use when the user asks to deploy, start, bring up, or check a DevStack, fullstack, TripleO, Packstack, or generic Vagrant box from this repo.
+description: Deploy or start OpenStack lab boxes in this Vagrant repo. Picks the right Vagrantfile from the request (e.g. "ml2/ovn single node devstack"), brings halted VMs up without re-provisioning, checks whether DevStack is already running, and runs stack.sh when it is not. Afterwards mounts the VM's /opt/stack into local_src with SSHFS (one subfolder per node on multinode) so project code can be edited locally. Use when the user asks to deploy, start, bring up, mount, or check a DevStack, fullstack, TripleO, Packstack, or generic Vagrant box from this repo.
 ---
 
 # Deploy a Vagrant lab box
@@ -100,7 +100,7 @@ vagrant ssh -c 'test -f /opt/stack/devstack/openrc && echo openrc'
 - `stack.sh` missing → the box is not provisioned. Run `vagrant provision`
   (vault rules apply) before deploying. Do not try to clone DevStack by hand.
 - At least one `devstack@` unit running and `openrc` present → likely deployed.
-  Confirm with the API check below, then report and stop.
+  Confirm with the API check below, then go to step 5 to mount `local_src`.
 - No units and no `openrc` → deploy (step 4).
 - Some units but a failing API check → the previous run was partial. Report the
   state and ask whether to re-run `stack.sh`; do not destroy anything.
@@ -138,7 +138,44 @@ each compute node one at a time:
 Do not start compute nodes in parallel and do not start them before the
 controller finished.
 
-## Step 5: verify and report
+## Step 5: expose /opt/stack as local_src
+
+Every DevStack box, once up and deployed, gets `/opt/stack` from the VM mounted
+locally with SSHFS. Do this even when the box was already deployed — the mount
+does not survive a reboot or a `vagrant halt`.
+
+```sh
+.agents/skills/deploy-devstack/scripts/mount_stack.sh <directory>
+```
+
+The script is idempotent and lays the mount out by topology:
+
+| Box | Mount point |
+| --- | --- |
+| single node | `<directory>/local_src` |
+| multinode | `<directory>/local_src/controller`, `<directory>/local_src/compute`, … (one directory per machine) |
+
+`local_src` is git-ignored. Edits made through it are written straight to the
+VM, so no sync step is needed. The usual target is
+`local_src/neutron` (single node) or `local_src/controller/neutron` /
+`local_src/compute/neutron` (multinode).
+
+Check the state, and unmount before stopping any box:
+
+```sh
+.agents/skills/deploy-devstack/scripts/mount_stack.sh <directory> status
+.agents/skills/deploy-devstack/scripts/mount_stack.sh <directory> unmount
+```
+
+If the mount point is not empty, the script refuses to mount rather than hide
+local files. If SSHFS is not installed, report it; do not install packages
+without asking.
+
+After editing a project through the mount, restart the affected services with
+the `devstack-restart` skill (`restart.sh <dir> <service>`), which only touches
+the machines where that unit is enabled.
+
+## Step 6: verify and report
 
 On the controller (or the single node):
 
@@ -155,6 +192,7 @@ State:      was shutoff -> vagrant up
 OpenStack:  not deployed -> stack.sh
 Result:     24 services enabled, 1 compute node up
 Logs:       /opt/stack/logs/stack.sh.log
+Mount:      devstack/Ubuntu/ovn/local_src -> /opt/stack
 ```
 
 For multinode, list each machine's status separately. If something failed, give
@@ -164,7 +202,12 @@ the failing machine, the exit code, and the last error lines from
 ## Guardrails
 
 - Never run `vagrant destroy`, `vagrant halt`, `unstack.sh`, or `clean.sh`
-  unless the user explicitly asks. `destroy` deletes the VM and its disks.
+  unless the user explicitly asks. `destroy` deletes the VM and its disks. If
+  asked to halt or destroy a box, unmount `local_src` first.
+- Never read or edit files under `local_src` unless `mountpoint -q` confirms the
+  path is mounted; otherwise the path is just an empty directory or a stale mount.
+- Do not mount over a non-empty `local_src`; never delete local files to make a
+  mount succeed.
 - Do not edit `Vagrantfile`, `local.conf`, or the Ansible roles to work around a
   problem; report the problem instead.
 - Do not print or copy vault-encrypted values or anything under `files/gpg`.

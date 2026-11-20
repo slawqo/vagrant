@@ -44,8 +44,19 @@ Project skills live in `.agents/skills/`:
 - `deploy-devstack` — maps a request like "deploy ml2/ovn single node devstack"
   to the right box directory, brings the VM up (without re-provisioning a halted
   one), checks whether DevStack is already running, and runs `stack.sh` on the
-  controller before any compute nodes. Handles non-DevStack boxes by only
-  running `vagrant up`.
+  controller before any compute nodes. Afterwards it mounts the VM's `/opt/stack`
+  at `local_src/` with SSHFS (multi-machine boxes get
+  `local_src/controller`, `local_src/compute`, …), so project code can be edited
+  locally and takes effect in the VM immediately. Handles non-DevStack boxes by
+  only running `vagrant up`.
+- `devstack-restart` — restarts a DevStack service (`neutron-api`,
+  `neutron-openvswitch-agent`, `ovn-controller`, `nova-compute`, …) only on the
+  VMs where its `devstack@` unit is enabled, controller first. Use it after
+  editing code through `local_src`.
+
+`local_src/` is a mount point, not source: it is git-ignored and is only valid
+while the box is running and mounted. Unmount it before `vagrant halt` or
+`vagrant destroy`.
 
 More skills (local development/testing inside the boxes) will be added here.
 
@@ -90,6 +101,18 @@ expensive and destructive — confirm with the user first.
 Boxes with `ansible.ask_vault_pass = true` prompt interactively for the vault
 password, so they cannot be brought up unattended. The `multinode_*` boxes read
 `/tmp/vault_pass` instead, but still require that file to exist.
+
+## Working on code in a box
+
+`deploy-devstack` mounts each DevStack VM's `/opt/stack` at
+`<box-dir>/local_src`, or `local_src/<machine>` for multinode boxes. Edit
+`local_src/<project>` directly — changes land in the VM immediately, so do not
+maintain a second copy or sync by hand.
+
+Restart the owning service with `devstack-restart` (e.g. "restart neutron-api")
+instead of SSH-ing in and bouncing units manually; it restarts only on machines
+where the unit is enabled and handles the controller before computes. Unmount
+`local_src` before `vagrant halt` or `vagrant destroy`.
 
 ## Provisioning notes
 
